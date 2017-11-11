@@ -17,14 +17,17 @@ CREATE TABLE colors(
 
 CREATE TABLE events(
 	id_event INT(10) UNSIGNED AUTO_INCREMENT,
+    id_organizer INT UNSIGNED,
     name VARCHAR(100) NOT NULL,
-    start_date DATETIME NOT NULL,
-    end_date DATETIME NOT NULL,
+    date DATE NOT NULL,
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
     place VARCHAR(200),
     description VARCHAR(250),
     id_color int UNSIGNED,
     PRIMARY KEY (id_event),
-    FOREIGN KEY (id_color) REFERENCES colors(id_color)
+    FOREIGN KEY (id_color) REFERENCES colors(id_color),
+    FOREIGN KEY (id_organizer) REFERENCES users(id_user)
 )
 
 CREATE TABLE users_to_events(

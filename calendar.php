@@ -13,6 +13,8 @@
 <script>
 window.onload = function(){
     document.getElementById("defaultOpen").click();
+    createCalendarTable();
+    createMonthView();  
 }
 function redirect(path){
     document.location.href = "/" + path;
@@ -42,29 +44,77 @@ function changeText(e){
 
 }
 
-function addEvent(e){
-    console.log(e.target.id);
-    this.createMonthView();
+function closeModal(){
     var modal = document.getElementById('eventModal');
-    modal.style.display = "block";
+    modal.style.display = "none";
+}
+
+function openModal(event){
+    var modal = document.getElementById('eventModal');
+    modal.style.display = "block";    
+     
+    var saveBtn = document.getElementById("saveEventBtn");
+    saveBtn.addEventListener('click', function(){addEvent()});
+
     var span = document.getElementsByClassName("close")[0];
     span.onclick = function(){
         modal.style.display = "none";
     }
+
     window.onclick = function(event) {
     if (event.target == modal) {
             modal.style.display = "none";
         }
     }
-    var div = document.createElement('div');
-    var target = document.getElementById(e.target.id);
-    target.appendChild(div);
-    div.id="event" + e.target.id;
-    div.innerHTML = "<h5>Nowy event!</h5>";
-    div.setAttribute("class", "event-box col-7");
-    div.setAttribute("draggable", true);
-    div.setAttribute("ondragstart", "drag(event)");
+
+    var cancelBtn = document.getElementById("cancelBtn");
+    cancelBtn.onclick = function(){
+        modal.style.display = "none";
+    }
 }
+
+function addEvent(){
+    console.log(e.target.id);
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function(){
+        if(this.readyState === 4 && this.status === 200){
+            var div = document.createElement('div');
+            var target = document.getElementById(e.target.id);
+            target.appendChild(div);
+            div.id="event" + e.target.id;
+            div.innerHTML = "<h5>Nowy event!</h5>";
+            div.setAttribute("class", "event-box col-7");
+            div.setAttribute("draggable", true);
+            div.sadeEventListener("ondragstart", function(){drag(event)});
+        }
+    }        
+}
+
+function createCalendarTable(){
+    var calendarSection = document.getElementsByClassName("month-calendar")[0];
+    for(var i = 0; i < 7; i++){
+        var weekBox = document.createElement('div');
+        weekBox.className = "week-day-box col-1";
+        
+        var headerBox = document.createElement('div');
+        headerBox.className="day-box-header";
+        headerBox.innerHTML = "<h4>Poniedziałek</h4>"
+
+        weekBox.appendChild(headerBox);
+        var day = i;
+        for(var days = 1+i, j = 0; j < 5; days+=7, j++){
+            var dayBox = document.createElement('div');
+            dayBox.className = "day-box";
+            dayBox.addEventListener("dblclick", function(){addEvent(event)});
+            dayBox.addEventListener("ondrop", function(){drop(event)});
+            dayBox.addEventListener("ondragover", function(){allowDrop(event)});
+            dayBox.id="dayBox"+days;
+            weekBox.appendChild(dayBox);
+        }
+    calendarSection.appendChild(weekBox);
+    }
+}
+
 function createMonthView(){
     var date = new Date();
     var month = date.getMonth()+1;
@@ -74,7 +124,14 @@ function createMonthView(){
     var daysInMonth = new Date(year, month, 0).getDate();
     var daysInPrevMonth = new Date(year, month-1, 0).getDate();
     var daysInNextMonth = new Date(year, month+1, 0).getDate();
-    console.log(daysInPrevMonth);
+    for(var i = 1, j = dayOfWeek; i <= daysInMonth ; i++, j++){
+        var div = document.createElement('div');
+        div.className = "";
+        div.id = "day-"+i;
+        div.innerHTML = " " + i;
+        var dayBox = document.getElementById("dayBox"+j);
+        dayBox.appendChild(div);
+    }
 }
 
 </script>
@@ -97,7 +154,6 @@ function createMonthView(){
 
 </section>
 <section class="tab-content" id="calendarTab">
-    <section class="inline">
     <section class="month-calendar">
     <div id="eventModal" class="modal">
         <div class="modal-content small">
@@ -108,76 +164,77 @@ function createMonthView(){
             <div class="modal-body">
                 <form>
                     <p>Event name:</p>
-                    <input id="eventNameTextField" type="text" name="eventName">
+                    <input id="eventNameField" type="text" name="eventName">
+                    <p>Event date</p>
+                    <input id="eventDateField" type="date", name="date">
                     <p>Event date start:</p>
-                    <input id="eventStartTimeField" type="time" name="startTime">
+                    <input id="eventStartField" type="time" name="startTime">
                     <p>Event date end:</p>
-                    <input id="eventEndTimeField" type="time" name="endTime">
+                    <input id="eventEndField" type="time" name="endTime">
                 </form>
             </div>
             <div class="modal-footer">
-    
+                <button class="button" id="saveEventBtn">Save</button>
+                <button class="button" id="cancelBtn">Cancel</button>    
             </div>
         </div>
     </div>
+    <!-- <div class="week-day-box col-1">
+        <div class="day-box-header"><h4>Poniedziałek</h4></div>
+        <div class="day-box" id="dayBox1" ondblclick="addEvent(event)"   ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        <div class="day-box" id="dayBox8" ondblclick="addEvent(event)"   ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        <div class="day-box" id="dayBox15" ondblclick="addEvent(event)"   ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        <div class="day-box" id="dayBox22" ondblclick="addEvent(event)"   ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        <div class="day-box" id="dayBox29" ondblclick="addEvent(event)"   ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+    </div>
     <div class="week-day-box col-1">
-    <div class="day-box-header"><h4>Poniedziałek</h4></div>
-    <div class="day-box" id="dayBox1" ondblclick="addEvent(event)" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-    <div class="day-box" id="dayBox2" ondblclick="addEvent(event)" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-    <div class="day-box" id="dayBox3" ondblclick="addEvent(event)" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-    <div class="day-box" id="dayBox4" ondblclick="addEvent(event)" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-    <div class="day-box" id="dayBox5" ondblclick="addEvent(event)" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-</div>
-<div class="week-day-box col-1">
-    <div class="day-box-header"><h4>Wtorek</h4></div>
-    <div class="day-box" id="dayBox6"  ondblclick="addEvent(event)" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-    <div class="day-box" id="dayBox7"  ondblclick="addEvent(event)" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-    <div class="day-box" id="dayBox8"  ondblclick="addEvent(event)" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-    <div class="day-box" id="dayBox9"  ondblclick="addEvent(event)" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-    <div class="day-box" id="dayBox10" ondblclick="addEvent(event)" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-</div>
-<div class="week-day-box col-1">
-    <div class="day-box-header"><h4>Środa</h4></div>
-    <div class="day-box" id="dayBox11" ondblclick="addEvent(event)" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-    <div class="day-box" id="dayBox12" ondblclick="addEvent(event)" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-    <div class="day-box" id="dayBox13" ondblclick="addEvent(event)" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-    <div class="day-box" id="dayBox14" ondblclick="addEvent(event)" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-    <div class="day-box" id="dayBox15" ondblclick="addEvent(event)" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-</div>
-<div class="week-day-box col-1">
-    <div class="day-box-header"><h4>Czwartek</h4></div>
-    <div class="day-box" id="dayBox16" ondblclick="addEvent(event)" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-    <div class="day-box" id="dayBox17" ondblclick="addEvent(event)" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-    <div class="day-box" id="dayBox18" ondblclick="addEvent(event)" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-    <div class="day-box" id="dayBox19" ondblclick="addEvent(event)" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-    <div class="day-box" id="dayBox20" ondblclick="addEvent(event)" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-</div>
-<div class="week-day-box col-1">
-    <div class="day-box-header"><h4>Piątek</h4></div>
-    <div class="day-box" id="dayBox21" ondblclick="addEvent(event)" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-    <div class="day-box" id="dayBox21" ondblclick="addEvent(event)" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-    <div class="day-box" id="dayBox23" ondblclick="addEvent(event)" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-    <div class="day-box" id="dayBox24" ondblclick="addEvent(event)" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-    <div class="day-box" id="dayBox25" ondblclick="addEvent(event)" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-</div>
-<div class="week-day-box col-1">
-    <div class="day-box-header"><h4>Sobota</h4></div>
-    <div class="day-box" id="dayBox26" ondblclick="addEvent(event)" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-    <div class="day-box" id="dayBox27" ondblclick="addEvent(event)" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-    <div class="day-box" id="dayBox28" ondblclick="addEvent(event)" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-    <div class="day-box" id="dayBox29" ondblclick="addEvent(event)" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-    <div class="day-box" id="dayBox30" ondblclick="addEvent(event)" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-</div>
-<div class="week-day-box col-1">
-    <div class="day-box-header"><h4>Niedziela</h4></div>
-    <div class="day-box" id="dayBox31" ondblclick="addEvent(event)" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-    <div class="day-box" id="dayBox32" ondblclick="addEvent(event)" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-    <div class="day-box" id="dayBox33" ondblclick="addEvent(event)" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-    <div class="day-box" id="dayBox34" ondblclick="addEvent(event)" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-    <div class="day-box" id="dayBox35" ondblclick="addEvent(event)" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-</div>
-</section>
-<section class="side-list">sdfsdf<section>
+        <div class="day-box-header"><h4>Wtorek</h4></div>
+        <div class="day-box" id="dayBox2"  ondblclick="addEvent(event)"   ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        <div class="day-box" id="dayBox9"  ondblclick="addEvent(event)"   ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        <div class="day-box" id="dayBox16"  ondblclick="addEvent(event)"   ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        <div class="day-box" id="dayBox23"  ondblclick="addEvent(event)"   ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        <div class="day-box" id="dayBox30" ondblclick="addEvent(event)"   ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+    </div>
+    <div class="week-day-box col-1">
+        <div class="day-box-header"><h4>Środa</h4></div>
+        <div class="day-box" id="dayBox3" ondblclick="addEvent(event)"   ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        <div class="day-box" id="dayBox10" ondblclick="addEvent(event)"   ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        <div class="day-box" id="dayBox17" ondblclick="addEvent(event)"   ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        <div class="day-box" id="dayBox24" ondblclick="addEvent(event)"   ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        <div class="day-box" id="dayBox31" ondblclick="addEvent(event)"   ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+    </div>
+    <div class="week-day-box col-1">
+        <div class="day-box-header"><h4>Czwartek</h4></div>
+        <div class="day-box" id="dayBox4" ondblclick="addEvent(event)"   ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        <div class="day-box" id="dayBox11" ondblclick="addEvent(event)"   ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        <div class="day-box" id="dayBox18" ondblclick="addEvent(event)"   ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        <div class="day-box" id="dayBox25" ondblclick="addEvent(event)"   ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        <div class="day-box" id="dayBox32" ondblclick="addEvent(event)"   ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+    </div>
+    <div class="week-day-box col-1">
+        <div class="day-box-header"><h4>Piątek</h4></div>
+        <div class="day-box" id="dayBox5" ondblclick="addEvent(event)"   ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        <div class="day-box" id="dayBox12" ondblclick="addEvent(event)"   ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        <div class="day-box" id="dayBox19" ondblclick="addEvent(event)"   ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        <div class="day-box" id="dayBox26" ondblclick="addEvent(event)"   ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        <div class="day-box" id="dayBox33" ondblclick="addEvent(event)"   ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+    </div>
+    <div class="week-day-box col-1">
+        <div class="day-box-header"><h4>Sobota</h4></div>
+        <div class="day-box" id="dayBox6" ondblclick="addEvent(event)"   ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        <div class="day-box" id="dayBox13" ondblclick="addEvent(event)"   ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        <div class="day-box" id="dayBox20" ondblclick="addEvent(event)"   ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        <div class="day-box" id="dayBox27" ondblclick="addEvent(event)"   ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        <div class="day-box" id="dayBox34" ondblclick="addEvent(event)"   ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+    </div>
+    <div class="week-day-box col-1">
+        <div class="day-box-header"><h4>Niedziela</h4></div>
+        <div class="day-box" id="dayBox7" ondblclick="addEvent(event)"   ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        <div class="day-box" id="dayBox14" ondblclick="addEvent(event)"   ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        <div class="day-box" id="dayBox21" ondblclick="addEvent(event)"   ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        <div class="day-box" id="dayBox28" ondblclick="addEvent(event)"   ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        <div class="day-box" id="dayBox35" ondblclick="addEvent(event)"   ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+    </div> -->
 </section>
 </section>
 <footer>

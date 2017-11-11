@@ -1,4 +1,5 @@
 .month-calendar{
+    padding-bottom: 20px;
     margin-top: 10px;
     width: 90%;
     align-content: center;
@@ -59,4 +60,16 @@ form>p{
 
 form{
     padding: 10px;
+}
+
+.side-list{
+    
+    position: absolute;
+    margin: 0px 10px 0px 0px;
+    padding:0;
+    right:0;
+    float: right;
+    background-color: #686b69;
+    width: 50px;
+    height: 100%;
 }
