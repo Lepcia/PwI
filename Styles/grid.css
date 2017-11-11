@@ -1,0 +1,49 @@
+ul li.search-panel{
+    display: inline-block;
+    margin: 0px;
+    padding: 7px;
+    width: 100px;
+    text-align: center;
+}
+
+ul.search-panel{
+    list-style-type: none;
+    margin: 0;
+    padding: 5px;
+    overflow: hidden;
+    background-color: #0b93aa;
+}
+
+li{
+    float: left;
+}
+
+button{
+    float:right;
+}
+
+button:hover{
+    background-color: #44c4d8 !Important;
+}
+
+li input{
+    display: block;
+    float:left;
+}
+
+label{
+    text-align:right;
+    clear: both;
+    float: left;
+    margin: 7px 15px 0px 15px;
+    color:white;
+    width: auto;
+}
+
+.search-field{
+    width:150px;
+    padding: 4px;
+    border:#0b93aa solid 2px;
+    margin: 5px;
+}
+
