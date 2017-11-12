@@ -32,6 +32,11 @@
     overflow-x: auto;
     white-space: nowrap;
 }
+
+.hidden-box{
+    visibility: collapse;
+}
+
 .day-box:hover{
     background-color: #d1d1d1;
 }

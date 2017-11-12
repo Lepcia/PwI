@@ -71,23 +71,48 @@ function openModal(event){
     cancelBtn.onclick = function(){
         modal.style.display = "none";
     }
+
+    var day = document.getElementById(event.target.id).childNodes[0].innerHTML;
+    setFormDate(day);
+}
+
+function setFormDate(day){
+    var date = new Date();
+    date.setDate(day);
+    date = date.toISOString().slice(0,10);
+    document.getElementById("eventDateField").value = date;
+    document.getElementById("descriptionField").value = "wfwefwefwf";
+    document.getElementById("eventNameField").value = "Event";
+    document.getElementById("placeField").value = "place";
 }
 
 function addEvent(){
-    console.log(e.target.id);
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function(){
         if(this.readyState === 4 && this.status === 200){
-            var div = document.createElement('div');
+            /* var div = document.createElement('div');
             var target = document.getElementById(e.target.id);
             target.appendChild(div);
             div.id="event" + e.target.id;
             div.innerHTML = "<h5>Nowy event!</h5>";
             div.setAttribute("class", "event-box col-7");
             div.setAttribute("draggable", true);
-            div.sadeEventListener("ondragstart", function(){drag(event)});
+            div.addEventListener("ondragstart", function(){drag(event)}); */
+            console.log(this.responseText);
+
         }
-    }        
+    };
+    var inputs = document.forms["eventForm"].getElementsByTagName('input');
+    var data = {};
+    for(var i = 0; i < inputs.length; i++){
+        data[inputs[i].name] = inputs[i].value;
+    }
+    data["description"] = document.getElementById("descriptionField").value;
+    var myJSON = JSON.stringify(data);
+    var url = "addEvent.php";
+    xhttp.open("POST", url, true);
+    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    xhttp.send("params="+myJSON);
 }
 
 function createCalendarTable(){
@@ -105,10 +130,11 @@ function createCalendarTable(){
         for(var days = 1+i, j = 0; j < 5; days+=7, j++){
             var dayBox = document.createElement('div');
             dayBox.className = "day-box";
-            dayBox.addEventListener("dblclick", function(){addEvent(event)});
+            dayBox.addEventListener("dblclick", function(){openModal(event)});
             dayBox.addEventListener("ondrop", function(){drop(event)});
             dayBox.addEventListener("ondragover", function(){allowDrop(event)});
             dayBox.id="dayBox"+days;
+            dayBox.name=days;
             weekBox.appendChild(dayBox);
         }
     calendarSection.appendChild(weekBox);
@@ -124,10 +150,20 @@ function createMonthView(){
     var daysInMonth = new Date(year, month, 0).getDate();
     var daysInPrevMonth = new Date(year, month-1, 0).getDate();
     var daysInNextMonth = new Date(year, month+1, 0).getDate();
+    
+    for(var i = 1; i < dayOfWeek; i++){        
+        var dayBox = document.getElementById("dayBox"+i);        
+        dayBox.className = "day-box hidden-box";
+    }
+    for(var i = 35; i >= daysInMonth+dayOfWeek; i--){
+        var dayBox = document.getElementById("dayBox"+i);        
+        dayBox.className = "day-box hidden-box";
+    }
     for(var i = 1, j = dayOfWeek; i <= daysInMonth ; i++, j++){
         var div = document.createElement('div');
-        div.className = "";
         div.id = "day-"+i;
+        div.name = i;
+        div.className="day";
         div.innerHTML = " " + i;
         var dayBox = document.getElementById("dayBox"+j);
         dayBox.appendChild(div);
@@ -162,16 +198,23 @@ function createMonthView(){
                 <h3>Add event</h3>
             </div>
             <div class="modal-body">
-                <form>
+                <form id="eventForm">
                     <p>Event name:</p>
-                    <input id="eventNameField" type="text" name="eventName">
+                    <input id="eventNameField" type="text" name="eventName" class="text-field">
                     <p>Event date</p>
-                    <input id="eventDateField" type="date", name="date">
+                    <input id="eventDateField" type="date", name="date" class="text-field">
                     <p>Event date start:</p>
-                    <input id="eventStartField" type="time" name="startTime">
+                    <input id="eventStartField" type="time" name="startTime" class="text-field" value="08:00">
                     <p>Event date end:</p>
-                    <input id="eventEndField" type="time" name="endTime">
+                    <input id="eventEndField" type="time" name="endTime" class="text-field" value="09:00">
+                    <p>Place</p>
+                    <input id="placeField" type="text" name="place" class="text-field">
+                    <p>Description</p>
+                    <textarea rows="2" cols="50" id="descriptionField" name="description" class="text-field"></textarea>
+                    <p>Color</p>
+                    <input type="color" name="color">                    
                 </form>
+
             </div>
             <div class="modal-footer">
                 <button class="button" id="saveEventBtn">Save</button>

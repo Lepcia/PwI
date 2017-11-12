@@ -8,12 +8,12 @@ CREATE TABLE users(
     PRIMARY KEY (id_user)
 )
 
-CREATE TABLE colors(
+/* CREATE TABLE colors(
     id_color INT UNSIGNED AUTO_INCREMENT,
     color_hex VARCHAR(7),
     description VARCHAR(50),
     PRIMARY KEY (id_color)
-)
+) */
 
 CREATE TABLE events(
 	id_event INT(10) UNSIGNED AUTO_INCREMENT,
@@ -24,9 +24,8 @@ CREATE TABLE events(
     end_time TIME NOT NULL,
     place VARCHAR(200),
     description VARCHAR(250),
-    id_color int UNSIGNED,
+    color_hex VARCHAR(7),
     PRIMARY KEY (id_event),
-    FOREIGN KEY (id_color) REFERENCES colors(id_color),
     FOREIGN KEY (id_organizer) REFERENCES users(id_user)
 )
 

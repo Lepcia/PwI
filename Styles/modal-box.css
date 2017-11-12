@@ -9,6 +9,7 @@
     overflow: auto; 
     background-color: rgb(0,0,0);
     background-color: rgba(0,0,0,0.4);
+    overflow: hidden;
 }
 
 .modal-content.small{
@@ -21,7 +22,7 @@
 
 .modal-content {
     background-color: #fefefe;
-    margin: 15% auto; 
+    margin: 5% auto; 
     padding: 20px;
     border: 1px solid #888;
 }
