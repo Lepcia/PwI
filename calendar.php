@@ -14,7 +14,29 @@
 window.onload = function(){
     document.getElementById("defaultOpen").click();
     createCalendarTable();
-    createMonthView();  
+    createMonthView();
+    getEvents();
+
+    var modal = document.getElementById('eventModal');
+    
+    var saveBtn = document.getElementById("saveEventBtn");
+    saveBtn.addEventListener('click', function(){addEvent()});
+
+    var span = document.getElementsByClassName("close")[0];
+    span.onclick = function(){
+        modal.style.display = "none";
+    }
+
+    window.onclick = function(event) {
+    if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
+    var cancelBtn = document.getElementById("cancelBtn");
+    cancelBtn.onclick = function(){
+        modal.style.display = "none";
+    }  
 }
 function redirect(path){
     document.location.href = "/" + path;
@@ -52,54 +74,47 @@ function closeModal(){
 function openModal(event){
     var modal = document.getElementById('eventModal');
     modal.style.display = "block";    
-     
-    var saveBtn = document.getElementById("saveEventBtn");
-    saveBtn.addEventListener('click', function(){addEvent()});
-
-    var span = document.getElementsByClassName("close")[0];
-    span.onclick = function(){
-        modal.style.display = "none";
-    }
-
-    window.onclick = function(event) {
-    if (event.target == modal) {
-            modal.style.display = "none";
-        }
-    }
-
-    var cancelBtn = document.getElementById("cancelBtn");
-    cancelBtn.onclick = function(){
-        modal.style.display = "none";
-    }
 
     var day = document.getElementById(event.target.id).childNodes[0].innerHTML;
+    console.log(day);
     setFormDate(day);
 }
 
 function setFormDate(day){
+    console.log(day);
     var date = new Date();
+    console.log(date);
     date.setDate(day);
     date = date.toISOString().slice(0,10);
+    console.log(date);
     document.getElementById("eventDateField").value = date;
     document.getElementById("descriptionField").value = "wfwefwefwf";
     document.getElementById("eventNameField").value = "Event";
     document.getElementById("placeField").value = "place";
 }
 
+function addEventToCalendar(e, target){ 
+    var day = e.date.split("-")[2];
+    var target = document.getElementById("day-"+day).parentElement;
+    var div = document.createElement('div');
+    var startTime = e.start_time.substr(0, e.start_time.lastIndexOf(":"));
+    var endTime = e.end_time.substr(0, e.end_time.lastIndexOf(":"));
+    div.id="event" + e.id_event;
+    div.innerHTML = "<h5>" + e.name+"</h5><h5>" + startTime + "-" + endTime + "</h5>";
+    div.setAttribute("class", "event-box col-7");
+    div.setAttribute("draggable", true);
+    div.addEventListener("ondragstart", function(){drag(event)});
+    div.setAttribute("style", "background-color: " + e.color_hex + "!Important; border-color: " + e.color_hex + ";");
+    target.appendChild(div);
+}
+
 function addEvent(){
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function(){
         if(this.readyState === 4 && this.status === 200){
-            /* var div = document.createElement('div');
-            var target = document.getElementById(e.target.id);
-            target.appendChild(div);
-            div.id="event" + e.target.id;
-            div.innerHTML = "<h5>Nowy event!</h5>";
-            div.setAttribute("class", "event-box col-7");
-            div.setAttribute("draggable", true);
-            div.addEventListener("ondragstart", function(){drag(event)}); */
-            console.log(this.responseText);
-
+            var e = JSON.parse(this.response);
+            addEventToCalendar(e);
+            closeModal();
         }
     };
     var inputs = document.forms["eventForm"].getElementsByTagName('input');
@@ -113,6 +128,23 @@ function addEvent(){
     xhttp.open("POST", url, true);
     xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     xhttp.send("params="+myJSON);
+}
+
+function getEvents(){
+    console.log("get events");
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function(){
+        if(this.readyState === 4 && this.status === 200){
+            var arrayOfObjects = JSON.parse(this.responseText);
+            for(var i = 0; i < arrayOfObjects.length; i++){
+                var event = arrayOfObjects[i];
+                addEventToCalendar(event);
+            }
+        }
+    };
+    var url = "getEvents.php";
+    xhttp.open("GET", url, true);
+    xhttp.send();
 }
 
 function createCalendarTable(){
@@ -161,7 +193,7 @@ function createMonthView(){
     }
     for(var i = 1, j = dayOfWeek; i <= daysInMonth ; i++, j++){
         var div = document.createElement('div');
-        div.id = "day-"+i;
+        div.id = i <10 ? "day-0"+i : "day-"+i;
         div.name = i;
         div.className="day";
         div.innerHTML = " " + i;

@@ -40,7 +40,16 @@
         VALUES ('%s','%s','%s','%s','%s','%s','%s','%s')", $id_organizer, $date, $startTime, $endTime, $name, $place, $description, $color_hex);
 
         if(mysqli_query($db, $query) === TRUE){
-            echo "Success";
+            $insert_id = mysqli_real_escape_string($db, $db->insert_id);
+            $query = sprintf("SELECT id_event, id_organizer, name, date, start_time, end_time, place, description, color_hex FROM events WHERE id_event = '%s'", $insert_id);
+            $result = mysqli_query($db, $query);
+            $rows = array();
+            if(mysqli_num_rows($result) !== 0){
+                while($row = mysqli_fetch_assoc($result)){
+                    $rows = $row;
+                }
+                echo json_encode($rows);
+            }
         }
         else echo "failure";
     }
