@@ -23,7 +23,6 @@
         } else{
             $error = "Your Login Name is invalid!";
         }
-
     }
 ?>
 <!DOCTYPE HTML>
