@@ -43,30 +43,43 @@ function redirect(path){
 }
 
 function allowDrop(e) {
-    console.log("allowe drop");
     e.preventDefault();
 }
 
 function drag(e) {
     e.dataTransfer.setData("text", e.target.id);
-    console.log("drag" + e.target.id);
 }
 
-function drop(e) {
+function drop(e, target) {
     e.preventDefault();
-    console.log("drop" + e.target.id);
-    var data = e.dataTransfer.getData("text");
-	console.log(data);
-    e.target.appendChild(document.getElementById(data));
+    var eventBoxID = e.dataTransfer.getData("text");
+    e.target.appendChild(document.getElementById(eventBoxID));
     this.changeText(e);
+
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function(){
+        if(this.readyState === 4 && this.status === 200){
+            console.log(this.response);
+        }
+    };
+    var strDate = document.getElementById(e.target.id).getElementsByTagName("input")[0].value;
+    var id_event = document.getElementById(eventBoxID).getElementsByTagName("input")[0].value;
+    var updateObj = {};
+    updateObj.id_event = id_event;
+    updateObj.date = strDate;
+    updateObj.type = "Simple";
+    var myJSON = JSON.stringify(updateObj);
+    console.log(myJSON);
+    var url = "updateEvent.php";
+    
+    xhttp.open("POST", url, true);
+    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    xhttp.send("params="+myJSON);
 }
 
 function changeText(e){
     var target = document.getElementById(e.target.id);
     var dragId = e.dataTransfer.getData("text");
-    console.log("change text");
-    console.log("daraId: " + dragId);
-
 }
 
 function closeModal(){
@@ -79,17 +92,13 @@ function openModal(event){
     modal.style.display = "block";    
 
     var day = document.getElementById(event.target.id).childNodes[0].innerHTML;
-    console.log(day);
     setFormDate(day);
 }
 
 function setFormDate(day){
-    console.log(day);
     var date = new Date();
-    console.log(date);
     date.setDate(day);
     date = date.toISOString().slice(0,10);
-    console.log(date);
     document.getElementById("eventDateField").value = date;
     document.getElementById("descriptionField").value = "wfwefwefwf";
     document.getElementById("eventNameField").value = "Event";
@@ -103,7 +112,7 @@ function addEventToCalendar(e, target){
     var startTime = e.start_time.substr(0, e.start_time.lastIndexOf(":"));
     var endTime = e.end_time.substr(0, e.end_time.lastIndexOf(":"));
     div.id="event" + e.id_event;
-    div.innerHTML = "<h5>" + e.name+"</h5><h5>" + startTime + "-" + endTime + "</h5>";
+    div.innerHTML = "<input type='hidden' name='id_event' value='" + e.id_event + "'> <h5>" + e.name+"</h5><h5>" + startTime + "-" + endTime + "</h5>";
     div.setAttribute("class", "event-box col-7");
     div.setAttribute("draggable", true);
     div.setAttribute("ondragstart", "drag(event)");
@@ -120,6 +129,14 @@ function addEvent(){
             closeModal();
         }
     };
+    var myJSON = getEventFormData();
+    var url = "addEvent.php";
+    xhttp.open("POST", url, true);
+    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    xhttp.send("params="+myJSON);
+}
+
+function getEventFormData(){
     var inputs = document.forms["eventForm"].getElementsByTagName('input');
     var data = {};
     for(var i = 0; i < inputs.length; i++){
@@ -127,10 +144,7 @@ function addEvent(){
     }
     data["description"] = document.getElementById("descriptionField").value;
     var myJSON = JSON.stringify(data);
-    var url = "addEvent.php";
-    xhttp.open("POST", url, true);
-    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    xhttp.send("params="+myJSON);
+    return myJSON;
 }
 
 function getEvents(){
@@ -138,10 +152,12 @@ function getEvents(){
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function(){
         if(this.readyState === 4 && this.status === 200){
-            var arrayOfObjects = JSON.parse(this.responseText);
-            for(var i = 0; i < arrayOfObjects.length; i++){
-                var addEvent = arrayOfObjects[i];
-                addEventToCalendar(addEvent);
+            if(this.response !== ""){
+                var arrayOfObjects = JSON.parse(this.responseText);
+                for(var i = 0; i < arrayOfObjects.length; i++){
+                    var addEvent = arrayOfObjects[i];
+                    addEventToCalendar(addEvent);
+                }
             }
         }
     };
@@ -166,7 +182,7 @@ function createCalendarTable(){
             var dayBox = document.createElement('div');
             dayBox.className = "day-box";
             dayBox.addEventListener("dblclick", function(event){openModal(event)});
-            dayBox.setAttribute("ondrop", "drop(event)");
+            dayBox.setAttribute("ondrop", "drop(event, this)");
             dayBox.setAttribute("ondragover", "allowDrop(event)");
             dayBox.id="dayBox"+days;
             dayBox.name=days;
@@ -195,11 +211,14 @@ function createMonthView(){
         dayBox.className = "day-box hidden-box";
     }
     for(var i = 1, j = dayOfWeek; i <= daysInMonth ; i++, j++){
+        var boxDate = new Date();
+        boxDate.setDate(i);
+        var strDate = boxDate.toISOString().slice(0,10);
         var div = document.createElement('div');
         div.id = i <10 ? "day-0"+i : "day-"+i;
         div.name = i;
         div.className="day";
-        div.innerHTML = " " + i;
+        div.innerHTML = "<input type='hidden' value='" + strDate + "'> " + i;
         var dayBox = document.getElementById("dayBox"+j);
         dayBox.appendChild(div);
     }
@@ -234,6 +253,7 @@ function createMonthView(){
             </div>
             <div class="modal-body">
                 <form id="eventForm">
+                    <input type="hidden" name="id_event" value="">
                     <p>Event name:</p>
                     <input id="eventNameField" type="text" name="eventName" class="text-field">
                     <p>Event date</p>
