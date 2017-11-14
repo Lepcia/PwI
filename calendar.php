@@ -43,26 +43,29 @@ function redirect(path){
 }
 
 function allowDrop(e) {
+    console.log("allowe drop");
     e.preventDefault();
 }
 
 function drag(e) {
     e.dataTransfer.setData("text", e.target.id);
+    console.log("drag" + e.target.id);
 }
 
 function drop(e) {
     e.preventDefault();
+    console.log("drop" + e.target.id);
     var data = e.dataTransfer.getData("text");
 	console.log(data);
     e.target.appendChild(document.getElementById(data));
-    //this.changeText(e);
+    this.changeText(e);
 }
 
 function changeText(e){
     var target = document.getElementById(e.target.id);
     var dragId = e.dataTransfer.getData("text");
-    var textLabel = target.getElementsByClassName("data-label")[0];
-    textLabel.innerHTML = "Ostatnio opuszczony element: " + dragId;
+    console.log("change text");
+    console.log("daraId: " + dragId);
 
 }
 
@@ -103,7 +106,7 @@ function addEventToCalendar(e, target){
     div.innerHTML = "<h5>" + e.name+"</h5><h5>" + startTime + "-" + endTime + "</h5>";
     div.setAttribute("class", "event-box col-7");
     div.setAttribute("draggable", true);
-    div.addEventListener("ondragstart", function(){drag(event)});
+    div.setAttribute("ondragstart", "drag(event)");
     div.setAttribute("style", "background-color: " + e.color_hex + "!Important; border-color: " + e.color_hex + ";");
     target.appendChild(div);
 }
@@ -137,8 +140,8 @@ function getEvents(){
         if(this.readyState === 4 && this.status === 200){
             var arrayOfObjects = JSON.parse(this.responseText);
             for(var i = 0; i < arrayOfObjects.length; i++){
-                var event = arrayOfObjects[i];
-                addEventToCalendar(event);
+                var addEvent = arrayOfObjects[i];
+                addEventToCalendar(addEvent);
             }
         }
     };
@@ -162,9 +165,9 @@ function createCalendarTable(){
         for(var days = 1+i, j = 0; j < 5; days+=7, j++){
             var dayBox = document.createElement('div');
             dayBox.className = "day-box";
-            dayBox.addEventListener("dblclick", function(){openModal(event)});
-            dayBox.addEventListener("ondrop", function(){drop(event)});
-            dayBox.addEventListener("ondragover", function(){allowDrop(event)});
+            dayBox.addEventListener("dblclick", function(event){openModal(event)});
+            dayBox.setAttribute("ondrop", "drop(event)");
+            dayBox.setAttribute("ondragover", "allowDrop(event)");
             dayBox.id="dayBox"+days;
             dayBox.name=days;
             weekBox.appendChild(dayBox);
