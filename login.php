@@ -28,6 +28,7 @@
 <!DOCTYPE HTML>
 <html>
 <head>
+<title>Login</title>
 <link rel="stylesheet" type="text/css" href="Styles/page.css">
 <style>
 </style>

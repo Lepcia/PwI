@@ -106,6 +106,7 @@
 <!DOCTYPE HTML>
 <html>
 <head>
+<title>Register</title>
 <link rel="stylesheet" type="text/css" href="Styles/page.css">
 <style>
     

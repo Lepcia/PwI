@@ -178,9 +178,7 @@ function createCalendarHeader(date){
     var month = date.getMonth();
     var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     var strDate = "" + months[month] + " " + year;
-    console.log(date);
-    console.log(year);
-    var calendarSection = document.getElementsByClassName("month-calendar")[0];
+    var calendarSection = document.getElementById("calendarTable");
     var header = document.createElement('div');
     header.className="calendar-header";
     header.innerHTML = "<input id='hiddenDate' type='hidden' value='" + date.toISOString().slice(0,10) + "'>"
@@ -192,7 +190,7 @@ function createCalendarHeader(date){
 function prevMonth(){
     var dateStr = document.getElementById("hiddenDate").value.split("-");
     var date = new Date(dateStr[0], dateStr[1] - 2, dateStr[2]);
-    var calendarSection = document.getElementsByClassName("month-calendar")[0];
+    var calendarSection = document.getElementById("calendarTable");
     calendarSection.innerHTML = "";
     createCalendarHeader(date);
     createCalendarTable();
@@ -203,7 +201,7 @@ function prevMonth(){
 function nextMonth(){
     var dateStr = document.getElementById("hiddenDate").value.split("-");
     var date = new Date(dateStr[0], dateStr[1], dateStr[2]);
-    var calendarSection = document.getElementsByClassName("month-calendar")[0];
+    var calendarSection = document.getElementById("calendarTable");
     calendarSection.innerHTML = "";
     createCalendarHeader(date);
     createCalendarTable();
@@ -212,7 +210,7 @@ function nextMonth(){
 }
 
 function createCalendarTable(){
-    var calendarSection = document.getElementsByClassName("month-calendar")[0];
+    var calendarSection = document.getElementById("calendarTable");
     var weekDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
     for(var i = 0; i < 7; i++){
         var weekBox = document.createElement('div');
@@ -271,6 +269,7 @@ function createMonthView(date){
 }
 
 </script>
+<title>Calendar</title>
 </head>
 <body>
 <header>
@@ -303,7 +302,7 @@ function createMonthView(date){
                         <p>Event name:</p>
                         <input id="eventNameField" type="text" name="eventName" class="text-field">
                         <p>Event date</p>
-                        <input id="eventDateField" type="date", name="date" class="text-field">
+                        <input id="eventDateField" type="date" name="date" class="text-field">
                         <p>Event date start:</p>
                         <input id="eventStartField" type="time" name="startTime" class="text-field" value="08:00">
                         <p>Event date end:</p>
@@ -322,6 +321,7 @@ function createMonthView(date){
                 </div>
             </div>
         </div>
+        <div id="calendarTable"></div>
     </section>
 </section>
 <footer>
